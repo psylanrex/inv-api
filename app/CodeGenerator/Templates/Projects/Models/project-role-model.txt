@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\UserRole;
+use Carbon\Carbon;
+
+class Role extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['role_name'];
+
+    protected $casts = [
+
+        'created_at' => 'date:Y-m-d',
+        'updated_at' => 'date:Y-m-d'
+        
+    ];
+
+    public static function listRoles()
+    {
+
+        return self::select('id', 'role_name')->orderBy('role_name', 'asc')->get();
+
+    }
+
+    public static function getRoleId($name)
+    {
+
+        $role = self::where('role_name', $name)->first();
+
+        return $role->id;
+
+    }
+
+    public static function getSelects()
+    {
+
+        return self::orderBy('role_name', 'asc')->pluck('role_name', 'id');
+
+    }
+
+    public static function listUsersByRole($id)
+    {
+        $role = Role::find($id);
+
+        $role_name = $role->role_name;
+
+        $select = [
+
+            'users.id',
+            'users.name'
+            
+        ];
+
+
+        $users = UserRole::select($select)
+                         ->leftJoin('users', 'user_roles.user_id', '=', 'users.id')
+                         ->where('role_id', $id)
+                         ->get();
+
+        return [$role_name, $users];
+
+    }
+
+    public static function getBaseRoleUserSelects()
+    {
+
+        // we find all the users with base role assigned
+        // only users with a base role will appear 
+        // in the seclect list to assign roles to users
+        // this makes the pool of users manageable for large systems
+
+        $select = [
+
+            'users.id',
+            'users.name'
+            
+        ];
+
+
+        $baseRole = self::where('role_name', 'base')->first();
+
+        // all eligible staff members should have a base role record
+
+        $users = UserRole::select($select)
+                         ->leftJoin('users', 'user_roles.user_id', '=', 'users.id')
+                         ->where('role_id', $baseRole->id)
+                         ->get();
+
+        return $users;
+
+    }
+    
+}

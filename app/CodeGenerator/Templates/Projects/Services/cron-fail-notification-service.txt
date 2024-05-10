@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Services\Crons\Notifications;
+
+use App\Mail\CronFailureNotification;
+use Illuminate\Support\Facades\Mail;
+use App\Models\User;
+
+
+class CronFailNotificationService
+{
+
+    public static function sendNotifications($cron_name, $cron_failure_details)
+    {
+
+        $users = User::where('is_admin', 1)->get();
+        
+        foreach ( $users as $user ) {
+
+            Mail::to($user)->send(new CronFailureNotification($cron_name, $cron_failure_details));
+
+        }
+
+    }
+
+}

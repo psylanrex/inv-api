@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Services\Crons\Handlers;
+
+use Carbon\Carbon;
+use App\Models\CronLog;
+use DB;
+
+class :::HANDLER_NAME:::
+{
+
+    public function :::HANDLER_METHOD_NAME:::()
+    {
+
+        // add your logic
+
+        try{
+
+            // what the cron does...
+
+            return ['success' => 1, 'cron_fail_details' => NULL];
+
+        } catch (\Exception $e) {
+
+            // Log the exception message to the CronFailLog table
+
+            // the specific details
+    
+            $cron_fail_details = $this->errorMessage() . $e->getMessage();   
+            
+            return ['success' => 0, 'cron_fail_details' => $cron_fail_details];
+
+        }
+
+    }
+
+    public function errorMessage()
+    {
+
+        return ':::HANDLER_METHOD_NAME::: failed. ';
+
+    }
+
+}

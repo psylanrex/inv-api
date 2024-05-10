@@ -1,0 +1,172 @@
+<?php 
+
+namespace App\Services\Support\UserSupport;
+
+use App\Models\Status;
+use App\Models\SupportTicket;
+use App\Models\TicketResponse;
+
+class UserSupportTableDataService
+{
+
+    public function getTickets($request)
+    {
+
+        $user_id = auth()->id();
+
+        // status the ticket from form
+
+        $status = $request->get('status');
+
+        // columns for the query
+
+        $select = [
+
+            'support_tickets.id',
+            'support_topics.support_topic_name as topic',
+            'support_tickets.ticket_text as issue',
+            'support_tickets.created_at'
+        ];
+
+        // query according to desired status, 1 = all, 2 = closed, 3 = open
+
+        switch ( $status ) {
+
+            case 1 :
+
+                return $this->allTickets($select, $user_id);
+
+            case 2 :
+
+                return $this->closedTickets($select, $user_id);
+
+            case 3 :
+
+                return $this->openTickets($select, $user_id);
+
+            default :
+
+                return $this->allTickets($select, $user_id);
+        }
+
+    }
+
+    public function allTickets($select, $user_id)
+    {
+
+        // get the tickets
+
+        $tickets = SupportTicket::select($select)
+                                        ->leftJoin('support_topics', 'support_tickets.support_topic_id', '=', 'support_topics.id')
+                                        ->where('support_tickets.user_id', $user_id)
+                                        ->orderBy('support_tickets.created_at', 'desc')
+                                        ->paginate(10);
+
+        // set the count
+
+        $tickets->map( function ($ticket) {
+
+
+            if ( TicketResponse::where('support_ticket_id', $ticket->id)->exists() ) {
+
+                $ticket->response_count = TicketResponse::where('support_ticket_id', $ticket->id)->count();
+
+            } else {
+
+                $ticket->response_count = 0;
+
+            }
+
+                return $ticket;
+
+            });
+
+        // return tickets
+
+        return $tickets;
+
+    }
+
+    public function openTickets($select, $user_id)
+    {
+
+        // get the needed status id
+
+        $open = Status::getStatusId('open');
+
+        // find the open tickets
+
+        $tickets = SupportTicket::select($select)
+                                ->leftJoin('support_topics', 'support_tickets.support_topic_id', '=', 'support_topics.id')
+                                ->where('support_tickets.user_id', $user_id)
+                                ->where('support_tickets.status_id', $open)
+                                ->orderBy('support_tickets.created_at', 'desc')
+                                ->paginate(10);
+
+        // set the count
+
+        $tickets->map( function ($ticket) {
+
+
+            if ( TicketResponse::where('support_ticket_id', $ticket->id)->exists() ) {
+
+                $ticket->response_count = TicketResponse::where('support_ticket_id', $ticket->id)->count();
+
+            } else {
+
+                $ticket->response_count = 0;
+
+            }    
+
+            return $ticket;
+
+
+        });
+
+        // return tickets
+
+        return $tickets;
+       
+    }
+
+    public function closedTickets($select, $user_id)
+    {
+
+        // get the needed status id
+
+        $closed = Status::getStatusId('closed');
+
+        // find the tickets
+
+        $tickets =  SupportTicket::select($select)
+                                         ->leftJoin('support_topics', 'support_tickets.support_topic_id', '=', 'support_topics.id')
+                                         ->where('support_tickets.user_id', $user_id)
+                                         ->where('support_tickets.status_id', $closed)
+                                         ->orderBy('support_tickets.created_at', 'desc')
+                                         ->paginate(10);
+
+        // set the count
+
+        $tickets->map( function ($ticket) {
+
+            if ( TicketResponse::where('support_ticket_id', $ticket->id)->exists() ) {
+                                        
+                $ticket->response_count = TicketResponse::where('support_ticket_id', $ticket->id)->count();
+                                        
+            } else {
+                                        
+                $ticket->response_count = 0;
+                                        
+            }    
+                                        
+            return $ticket;                                   
+                                        
+        });
+
+        // return tickets
+                                    
+        return $tickets;
+     
+    }
+
+}

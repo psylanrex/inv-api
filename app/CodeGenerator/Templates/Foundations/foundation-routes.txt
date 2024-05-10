@@ -1,0 +1,12 @@
+   // :::ROUTENAME::: routes begin
+
+    Route::get('/:::ROUTEPLURAL:::', [:::CONTROLLERNAME:::::class, 'index']);
+    Route::get('/:::ROUTESINGULAR:::/{id}',[:::CONTROLLERNAME:::::class, 'show']);
+    Route::get('/:::ROUTESINGULAR:::/edit/{id}',[:::CONTROLLERNAME:::::class, 'editFormConfig']);
+    Route::get('/:::ROUTESINGULAR:::-add',[:::CONTROLLERNAME:::::class, 'addFormConfig']);
+    Route::post('/:::ROUTEPLURAL:::',[:::CONTROLLERNAME:::::class, 'store']);
+    Route::post('/:::ROUTESINGULAR:::/{id}',[:::CONTROLLERNAME:::::class, 'update']);
+    Route::delete('/:::ROUTESINGULAR:::/{id}',[:::CONTROLLERNAME:::::class, 'destroy']);
+    Route::get('/:::ROUTEPLURAL:::/search/{keyword}',[:::CONTROLLERNAME:::::class, 'search']);
+
+    // :::ROUTENAME::: routes end

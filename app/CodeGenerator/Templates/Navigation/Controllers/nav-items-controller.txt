@@ -1,0 +1,183 @@
+<?php
+
+namespace App\Http\Controllers\Admin\NavItems;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use App\Models\NavItem;
+use App\Utilities\DropDownListMaker;
+use App\Utilities\SortBy;
+use App\Services\Forms\AddFormConfigService;
+use App\Services\Forms\EditFormConfigService;
+
+class NavItemsController extends Controller
+{
+
+    public $indexColumnMap = ['nav_items.id', 
+                              'nav_items.nav_item_name', 
+                              'nav_headings.nav_heading_name',
+                              'nav_items.nav_item_label', 
+                              'nav_items.has_sub_items'];
+
+    public function getNavItemsList($id)
+    {
+
+        return NavItem::select('nav_items.id as nav_item_id', 
+                               'nav_items.nav_item_name', 
+                               'nav_items.nav_item_label')                   
+                        ->where('nav_items.nav_heading_id', $id)
+                        ->orderBy('nav_item_name', 'asc')
+                        ->get();
+
+    }
+
+    public function index(Request $request)
+    {
+        
+        $column_map = $this->indexColumnMap;
+
+        list($sortBy, $sortOrder) = SortBy::setSortBy($request, $column_map);
+        
+        $navItems = NavItem::select($column_map)
+                            ->leftJoin('nav_headings', 'nav_items.nav_heading_id', '=', 'nav_headings.id')     
+                            ->orderBy($sortBy, $sortOrder)                                                  
+                            ->paginate(10);
+
+        return $navItems;
+
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+
+           $request->validate([
+   
+               'nav_item_name' => 'string|max:140|required|unique:nav_items,nav_item_name',
+               'nav_heading_id' => 'required|integer'
+                               
+           ]);
+       
+           return NavItem::create($request->all());
+
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+
+        $columns = [
+
+            'nav_items.id',
+            'nav_items.nav_item_name',
+            'nav_headings.nav_heading_name',
+            'nav_items.nav_item_label', 
+            'nav_items.has_sub_items',
+            'nav_items.created_at',
+            'nav_items.updated_at'
+
+
+        ];
+        
+        return NavItem::select($columns)
+                        ->leftJoin('nav_headings', 'nav_items.nav_heading_id', '=', 'nav_headings.id')  
+                        ->where('id', $id)
+                        ->first();
+      
+    }
+
+    public function addFormConfig(AddFormConfigService $service, DropDownListMaker $listMaker)
+    {
+
+       return $service->getFormConfig('NavItem', 'nav_items', $listMaker);
+
+
+    }
+
+    public function editFormConfig($id, EditFormConfigService $service, DropDownListMaker $listMaker)
+    { 
+
+        return $service->getFormConfig($id, 'NavItem', 'nav_items', $listMaker); 
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+
+        $request->validate([
+
+            'nav_item_name' => [
+                'required',
+                'string',
+                'max:140',
+
+                Rule::unique('nav_items')->ignore($id),
+            ],
+
+            'nav_heading_id' => 'required|integer'
+
+
+        ]);
+
+        $navItem = NavItem::find($id);
+
+        $navItem->update($request->all());
+
+        return $navItem;
+
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        
+        return NavItem::destroy($id);
+
+    }
+
+    /**
+     * Find the specified resource.
+     *
+     * @param  string  $name
+     * @return \Illuminate\Http\Response
+     */
+    public function search(Request $request, $keyword)
+    {
+        $column_map = $this->indexColumnMap;
+
+        list($sortBy, $sortOrder) = SortBy::setSortBy($request, $column_map);
+        
+        $navItems = NavItem::select($column_map)
+                            ->leftJoin('nav_headings', 'nav_items.nav_heading_id', '=', 'nav_headings.id') 
+                            ->where('nav_item_name', 'like', '%'.$keyword.'%')
+                            ->orderBy($sortBy, $sortOrder)
+                            ->paginate(10);
+
+        return $navItems;
+
+    }
+
+}

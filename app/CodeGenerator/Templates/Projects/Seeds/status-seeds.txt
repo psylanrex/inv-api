@@ -1,0 +1,134 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Dev\Seeders;
+
+use App\Models\Status;
+use DB;
+
+class StatusesSeederController
+{
+
+    public function run()
+    {
+
+        DB::table('statuses')->truncate();
+
+        DB::table('statuses')->insert([
+            'status_name' => 'dumped',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'pending_email_verification',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+    
+        DB::table('statuses')->insert([
+            'status_name' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'active',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]); 
+            
+        DB::table('statuses')->insert([
+            'status_name' => 'rejected',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);  
+
+        DB::table('statuses')->insert([
+            'status_name' => 'submitted',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]); 
+
+        DB::table('statuses')->insert([
+            'status_name' => 'under review',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]); 
+
+        DB::table('statuses')->insert([
+            'status_name' => 'approved',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'responded',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'open',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'closed',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'unclaimed',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'claimed',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'shipped',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'running',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'completed',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'sold out',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('statuses')->insert([
+            'status_name' => 'inactive',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        
+
+        
+
+    
+
+    }
+
+
+}

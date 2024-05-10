@@ -1,0 +1,312 @@
+<?php
+
+namespace App\Services\Forms;
+
+class FormConfigCreateService
+{
+
+    public function createFormConfigs($request)
+    {
+
+        // each input on the form sending the request can be an array of values or single value
+        // the keys to the inputs are: files, booleans, textareas, numbers, texts, selects
+
+        $request->validate([
+
+            'crud_id' => 'required|integer'
+            
+        ]);
+
+        // set values
+
+        $file = base_path('app/Http/Controllers/Admin/Dev/Seeders/FormConfigsSeederController.php');
+
+        $crud_id_token = $request->get('crud_id');
+
+        $this->createTexts($request, $file, $crud_id_token);
+
+        $this->createTextareas($request, $file, $crud_id_token);
+
+        $this->createSelects($request, $file, $crud_id_token);
+
+        $this->createNumbers($request, $file, $crud_id_token);
+
+        $this->createBooleans($request, $file, $crud_id_token);
+
+        $this->createFiles($request, $file, $crud_id_token);
+
+        return $file;
+
+    }
+
+
+    public function createBooleans($request, $file, $crud_id_token)
+    {
+        if ( ! $request->filled('booleans') ) {
+
+            return FALSE;
+
+        }
+
+        $booleans = $request->get('booleans');
+        
+        $booleans = array_map('trim', explode(',', $booleans));
+
+        foreach ($booleans as $boolean) 
+        {
+            $boolean_name = $boolean;
+
+            $boolean_label = $this->formatTextAndNumberLabel($boolean_name);
+
+            $template = "FormConfig::create([
+
+                'crud_id' => {$crud_id_token},
+                'name' => '{$boolean_name}',
+                'type' => 'boolean',
+                'label' => '{$boolean_label}',
+                'required' => 1,
+                'max_length' => 500
+    
+            ]);";
+
+            $this->storeConfig($file, $template);
+
+        }
+
+    }
+
+    public function createTextareas($request, $file, $crud_id_token)
+    {
+
+        if ( ! $request->filled('textareas') ) {
+
+            return FALSE;
+
+        }
+
+        $textareas = $request->get('textareas');
+        
+        $textareas = array_map('trim', explode(',', $textareas));
+
+        foreach ($textareas as $textarea) 
+        {
+            $textarea_name = $textarea;
+
+            $textarea_label = $this->formatTextAndNumberLabel($textarea_name);
+
+            $template = "FormConfig::create([
+
+                'crud_id' => {$crud_id_token},
+                'name' => '{$textarea_name}',
+                'type' => 'textarea',
+                'label' => '{$textarea_label}',
+                'required' => 1,
+                'max_length' => 500
+    
+            ]);";
+
+            $this->storeConfig($file, $template);
+
+        }
+
+    }
+
+    public function createNumbers($request, $file, $crud_id_token)
+    {
+        if ( ! $request->filled('numbers') ) {
+
+            return FALSE;
+
+        }
+
+        $numbers = $request->get('numbers');
+        
+        $numbers = array_map('trim', explode(',', $numbers));
+
+        foreach ($numbers as $number) 
+        {
+            $number_name = $number;
+
+            $number_label = $this->formatTextAndNumberLabel($number_name);
+
+            $template = "FormConfig::create([
+
+                'crud_id' => {$crud_id_token},
+                'name' => '{$number_name}',
+                'type' => 'number',
+                'label' => '{$number_label}',
+                'required' => 1,
+                'max_length' => 50
+    
+            ]);";
+
+            $this->storeConfig($file, $template);
+
+        }
+
+    }
+
+    public function createTexts($request, $file, $crud_id_token)
+    {
+        if ( ! $request->filled('texts') ) {
+
+            return FALSE;
+
+        }
+
+        $texts = $request->get('texts');
+        
+        $texts = array_map('trim', explode(',', $texts));
+
+        foreach ($texts as $text) 
+        {
+            $text_name = $text;
+
+            $text_label = $this->formatTextAndNumberLabel($text_name);
+
+            $template = "FormConfig::create([
+
+                'crud_id' => {$crud_id_token},
+                'name' => '{$text_name}',
+                'type' => 'text',
+                'label' => '{$text_label}',
+                'required' => 1,
+                'max_length' => 50
+    
+            ]);";
+
+            $this->storeConfig($file, $template);
+
+        }
+
+    }
+
+    public function formatTextAndNumberLabel($value_name)
+    {
+
+        // using 'value' because this is for both numbers and text
+
+        $value_label = str_replace('_', ' ', $value_name);
+
+        return ucwords($value_label);
+
+
+    }
+
+    public function createSelects($request, $file, $crud_id_token) 
+    {
+        if ( ! $request->filled('selects') ) {
+
+            return FALSE;
+
+        }
+        $selects = $request->get('selects');
+        
+        $selects = array_map('trim', explode(',', $selects));
+
+        foreach ($selects as $select) 
+        {
+            $select_name = $select;
+
+            $select_label = $this->formatSelectLabel($select_name);
+
+            $template = "FormConfig::create([
+
+                'crud_id' => {$crud_id_token},
+                'name' => '{$select_name}',
+                'type' => 'select',
+                'label' => '{$select_label}',
+                'required' => 1,
+                'max_length' => 50
+    
+            ]);";
+
+            $this->storeConfig($file, $template);
+
+        }
+
+    }
+
+    public function createFiles($request, $file, $crud_id_token)
+    {
+
+        // files can be an array of values or a single value
+        // files is a form config for uploading files
+
+        if ( ! $request->filled('files') ) {
+
+            return FALSE;
+
+        }
+
+        // files can be an array of values or a single value
+
+        $files = $request->get('files');
+        
+        $files = array_map('trim', explode(',', $files));
+
+        foreach ($files as $upload) 
+        {
+            $upload_name = $upload;
+
+            $upload_label = $this->formatTextAndNumberLabel($upload_name);
+
+            $template = "FormConfig::create([
+
+                'crud_id' => {$crud_id_token},
+                'name' => '{$upload_name}',
+                'type' => 'file',
+                'label' => '{$upload_label}',
+                'required' => 0,
+                'max_length' => 0
+    
+            ]);";
+
+            $this->storeConfig($file, $template);
+
+        }
+
+    }
+
+    public function formatSelectLabel($select_name)
+    {
+
+        $select_label = str_replace('_', ' ', $select_name);
+
+        $select_label = ucwords($select_label);
+
+        $select_label = str_replace('Id', '', $select_label);
+
+        return rtrim($select_label);
+
+    }
+
+    public function storeConfig($file, $template)
+    {
+
+        // get the file contents
+
+        $contents = file_get_contents($file);
+
+        // divide into array parts on the separator
+
+        $classParts = explode('}', $contents, 3);
+        
+        //create a new file contents from the array pieces plus the new $template
+        // it uses the closing bracket of the function to arrange in the new form configs
+
+        $template = $classParts[0] . "\t" . $template . PHP_EOL . PHP_EOL . "\t" . "}"  . $classParts[1] . "}" .  $classParts[2];
+
+        // open, write and close
+
+        $handle = fopen($file, 'w');
+
+        fwrite($handle, $template);
+
+        fclose($handle);
+
+
+    }
+
+
+}

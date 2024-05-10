@@ -1,0 +1,26 @@
+<?php 
+
+namespace App\Services\Support\UserSupport;
+
+use App\Models\Status;
+use App\Models\SupportTicket;
+
+class StoreTicketService
+{
+
+    public static function storeTicket($request)
+    {
+
+        $open = Status::getStatusId('open');
+
+        $user_id = auth()->id();
+
+        // merge in status_id and user_id into the create array
+
+        $supportTicket = SupportTicket::create(array_merge($request->all(), ['status_id' => $open, 'user_id' => $user_id]));
+
+        return $supportTicket;
+
+    }
+
+}

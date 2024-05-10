@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Rules;
+
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
+use App\Models\TicketResponse;
+
+class TicketResponseBelongsToUser implements ValidationRule
+{
+
+    private $user_id;
+
+    /**
+     * Create a new rule instance.
+     *
+     * @return void
+     */
+    public function __construct($user_id)
+    {
+        $this->user_id = $user_id;
+    }
+
+    /**
+     * Run the validation rule.
+     *
+     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     */
+    public function validate(string $attribute, mixed $value, Closure $fail): void
+    {
+        if ( TicketResponse::where('id', $value)->where('user_id', $this->user_id)->doesntExist() ) {
+
+            $fail('The ticket does not belong to the user.');
+
+        }
+    }
+}

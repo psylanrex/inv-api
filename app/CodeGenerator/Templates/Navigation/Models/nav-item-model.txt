@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+
+class NavItem extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['nav_item_name', 'nav_heading_id', 'nav_item_label', 'has_sub_items'];
+
+    protected $casts = [
+
+        'created_at' => 'date:Y-m-d',
+        'updated_at' => 'date:Y-m-d'
+        
+    ];
+    
+}

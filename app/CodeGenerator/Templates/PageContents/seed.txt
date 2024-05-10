@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Dev\Seeders;
+
+use Illuminate\Support\Facades\File;
+use App\Models\PageContent;
+use DB;
+
+class PageContentsSeederController
+{
+
+    public function run()
+    {
+
+        DB::table('page_contents')->truncate();
+
+        $path = app_path('PageContents');
+
+        PageContent::create([
+
+            'page_content_name' => 'terms',
+            'page_content_body' => File::get($path . '/terms.txt')
+
+        ]);
+
+        PageContent::create([
+
+            'page_content_name' => 'privacy',
+            'page_content_body' => File::get($path . '/privacy.txt')
+
+        ]);
+
+        PageContent::create([
+
+            'page_content_name' => 'about',
+            'page_content_body' => File::get($path . '/about.txt')
+
+        ]); 
+
+    }
+
+
+}

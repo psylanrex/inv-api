@@ -1,0 +1,140 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Statuses;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use App\Utilities\DropDownListMaker;
+use App\Utilities\SortBy;
+use App\Services\Forms\AddFormConfigService;
+use App\Services\Forms\EditFormConfigService;
+use App\Models\Status;
+
+class StatusesController extends Controller
+{
+    public $indexColumnMap = ['id', 'status_name'];
+    
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+
+        // default column and direction for sorting
+
+        $column_map = $this->indexColumnMap;
+
+        list($sortBy, $sortOrder) = SortBy::setSortBy($request, $column_map);
+
+        return Status::select($column_map)
+                       ->orderBy($sortBy, $sortOrder) 
+                       ->paginate(10);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+           $request->validate([
+   
+               'status_name' => 'string|max:140|required|unique:statuses,status_name',
+    
+                       
+           ]);
+       
+           return Status::create($request->all());
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        return Status::find($id);
+    }
+
+    public function addFormConfig(AddFormConfigService $service, DropDownListMaker $listMaker)
+    {
+
+       return $service->getFormConfig('Status', 'statuses', $listMaker);
+
+
+    }
+
+    public function editFormConfig($id, EditFormConfigService $service, DropDownListMaker $listMaker)
+    { 
+
+        return $service->getFormConfig($id, 'Status', 'statuses', $listMaker); 
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+
+           $request->validate([
+
+            'status_name' => [
+                'required',
+                'string',
+                'max:140',
+
+                Rule::unique('statuses')->ignore($id),
+            ],
+            
+
+        ]);
+
+        $status = Status::find($id);
+
+        $status->update($request->all());
+
+        return $status;
+    }
+
+    public function destroy($id)
+    {
+
+        return Status::destroy($id);
+    }
+
+    /**
+     * Find the specified resource.
+     *
+     * @param  string  $keyword
+     * @return \Illuminate\Http\Response
+     */
+    public function search(Request $request, $keyword)
+    {
+
+        // default column and direction for sorting
+
+        $column_map = $this->indexColumnMap;
+
+        list($sortBy, $sortOrder) = SortBy::setSortBy($request, $column_map);
+
+        return Status::select($column_map)
+                       ->where('status_name', 'like', '%'.$keyword.'%')
+                       ->orderBy($sortBy, $sortOrder)
+                       ->paginate(10);
+        
+    }
+
+}

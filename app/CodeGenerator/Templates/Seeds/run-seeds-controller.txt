@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Dev\Seeders;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+use DB;
+
+class RunSeedsController extends Controller
+{
+
+    public function run(){
+
+        if ( ! env('ALLOW_SEEDS') ) {
+
+            return ['message' => 'ALLOW_SEEDS seeds set to false. Check your ENV file.'];
+
+        }
+
+        $models = [
+
+            'Users',
+            'Statuses',
+            'Cruds',
+            'FormConfigs',
+            'Roles',
+
+        ];
+
+        $count = 0;
+
+        foreach ( $models as $model ) {
+
+        app("App\Http\Controllers\Admin\Dev\Seeders\\{$model}SeederController")->run();
+
+        $count ++;
+
+        }
+
+        return "$count seeds created.";
+
+
+    }
+
+    public function getSeedFormConfig()
+    {
+        // we use this function to create the form config for the frontend for us to run single table seeds.
+
+        return [
+
+            'form_config' => [
+
+                'name' => 'table_name',
+                'type' => 'text',
+                'label' => 'Table Name',
+                'required' => 1,
+                'max_length' => 50,
+                'instructions' => 'enter the table name in snake_case for the seeds you want to create'
+
+            ],
+
+            'section_heading' =>'Make Single Table Seeds',  
+            'request_type' => 'get',
+            'get_endpoint' => 'make-seed?seed={table_name}',
+            'button_text'  => 'Make Single Table Seeds'
+
+        ];
+
+    }
+
+    public function runSeed(Request $request)
+    {
+
+        if ( ! env('ALLOW_SEEDS') ) {
+
+            return ['message' => 'ALLOW_SEEDS seeds set to false. Check your ENV file.'];
+
+        } 
+
+        $seed = $request->get('seed');
+
+        // create dynamically
+        // seed from request is table name
+
+        // need to convert table name to controller name partial
+
+        $controller_name = Str::studly($seed);
+
+        app("App\Http\Controllers\Admin\Dev\Seeders\\{$controller_name}SeederController")->run();
+
+        $count = DB::table($seed)->count();
+
+        return ['Success' => $count . " {$seed} created."];
+
+    }
+
+    public function dropSeed(Request $request)
+    {
+
+        if ( ! env('ALLOW_SEEDS') ) {
+
+            return ['message' => 'ALLOW_SEEDS seeds set to false. Check your ENV file.'];
+
+        } 
+
+        $table = $request->get('seed');
+
+        DB::table($table)->truncate();
+
+        return ['message' => 'The seed for ' . $table . ' have been destroyed.'];
+
+    }
+
+}

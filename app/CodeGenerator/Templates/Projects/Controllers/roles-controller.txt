@@ -1,0 +1,146 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Roles;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use App\Models\Role;
+use App\Utilities\DropDownListMaker;
+use App\Utilities\SortBy;
+use App\Services\Forms\AddFormConfigService;
+use App\Services\Forms\EditFormConfigService;
+
+class RolesController extends Controller
+{
+
+    public $indexColumnMap = ['id', 'role_name'];
+
+    public function index(Request $request)
+    {
+        
+        $column_map = $this->indexColumnMap;
+
+        list($sortBy, $sortOrder) = SortBy::setSortBy($request, $column_map);
+        
+        $roles =  Role::select($column_map)     
+                        ->orderBy($sortBy, $sortOrder)                                                  
+                        ->paginate(10);
+
+        return $roles;
+
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+
+           $request->validate([
+   
+               'role_name' => 'string|max:140|required|unique:roles,role_name',
+                               
+           ]);
+       
+           return Role::create($request->all());
+
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+
+        return Role::select('id', 'role_name', 'created_at', 'updated_at')->where('id', $id)->first();
+
+        
+    }
+
+    public function addFormConfig(AddFormConfigService $service, DropDownListMaker $listMaker)
+    {
+
+       return $service->getFormConfig('Role', 'roles', $listMaker);
+
+
+    }
+
+    public function editFormConfig($id, EditFormConfigService $service, DropDownListMaker $listMaker)
+    { 
+
+        return $service->getFormConfig($id, 'Role', 'roles', $listMaker); 
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+
+        $request->validate([
+
+            'role_name' => [
+                'required',
+                'string',
+                'max:140',
+
+                Rule::unique('roles')->ignore($id),
+            ]
+
+        ]);
+
+        $role = Role::find($id);
+
+        $role->update($request->all());
+
+        return $role;
+
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        
+        return Role::destroy($id);
+
+    }
+
+
+    /**
+     * Find the specified resource.
+     *
+     * @param  string  $name
+     * @return \Illuminate\Http\Response
+     */
+    public function search(Request $request, $keyword)
+    {
+        $column_map = $this->indexColumnMap;
+
+        list($sortBy, $sortOrder) = SortBy::setSortBy($request, $column_map);
+        
+        $roles =  Role::select($column_map)
+                        ->where('role_name', 'like', '%'.$keyword.'%')
+                        ->orderBy($sortBy, $sortOrder)
+                        ->paginate(10);
+
+        return $roles;
+
+    }
+}

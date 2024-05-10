@@ -1,0 +1,16 @@
+<?php
+
+:::NAMESPACE:::;
+
+
+class :::SERVICENAME:::
+{
+
+    public static function :::METHODNAME:::($request)
+    {
+     
+        return 'A fine way to start of your service.';
+
+    }
+
+}

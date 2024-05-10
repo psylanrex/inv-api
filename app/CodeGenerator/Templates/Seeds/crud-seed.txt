@@ -1,0 +1,10 @@
+        // :::MODELLABEL::: begin
+
+        Crud::create([
+
+            'crud_name' => ':::MODELLABEL::: ',
+            'table_name' => ':::TABLENAME:::' 
+
+        ]);
+
+        // :::MODELLABEL::: end

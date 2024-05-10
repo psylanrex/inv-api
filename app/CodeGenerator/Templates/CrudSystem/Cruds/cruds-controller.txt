@@ -1,0 +1,132 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Cruds;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Http\Requests\CrudStoreRequest;
+use App\Http\Requests\CrudUpdateRequest;
+use App\Utilities\DropDownListMaker;
+use App\Utilities\SortBy;
+use App\Services\Forms\AddFormConfigService;
+use App\Services\Forms\EditFormConfigService;
+use App\Models\Crud;
+
+class CrudsController extends Controller
+{
+
+    public $index_column_map = ['id', 'crud_name', 'table_name'];
+
+    public function getCrudsList(Request $request)
+    {
+
+        return Crud::select('id', 'crud_name', 'table_name')->orderBy('crud_name', 'asc')->get();
+
+    }
+
+    public function index(Request $request)
+    {
+
+        // default column and direction for sorting
+
+        $column_map = $this->index_column_map;
+
+        list($sortBy, $sortOrder) = SortBy::setSortBy($request, $column_map);
+        
+        return Crud::select($column_map)
+                    ->orderBy($sortBy, $sortOrder) 
+                    ->paginate(10);
+
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(CrudStoreRequest $request)
+    {
+           return Crud::create($request->all());
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        return Crud::find($id);
+
+    }
+
+    public function addFormConfig(AddFormConfigService $service, DropDownListMaker $listMaker)
+    {
+
+       return $service->getFormConfig('Crud', 'cruds', $listMaker);
+
+
+    }
+
+    public function editFormConfig($id, EditFormConfigService $service, DropDownListMaker $listMaker)
+    { 
+
+        return $service->getFormConfig($id, 'Crud', 'cruds', $listMaker); 
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(CrudUpdateRequest $request, $id)
+    {
+
+        $crud = Crud::find($id);
+
+        $crud->update($request->all());
+
+        return $crud;
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+
+        return Crud::destroy($id);
+
+    }
+
+
+    /**
+     * Find the specified resource.
+     *
+     * @param  string  $keyword
+     * @return \Illuminate\Http\Response
+     */
+    public function search(Request $request, $keyword)
+    {
+
+        // default column and direction for sorting
+
+        $column_map = $this->index_column_map;
+
+        list($sortBy, $sortOrder) = SortBy::setSortBy($request, $column_map);
+
+        return Crud::select($column_map)
+                    ->where('crud_name', 'like', '%'.$keyword.'%')
+                    ->orderBy($sortBy, $sortOrder)
+                    ->get();
+        
+    }
+}

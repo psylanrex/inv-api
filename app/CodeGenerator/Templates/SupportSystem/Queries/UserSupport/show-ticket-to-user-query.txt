@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Queries\Support\UserSupport;
+
+use App\Models\SupportTicket;
+
+class ShowTicketToUserQuery
+{
+
+    public static function getData($id)
+    {
+
+        $user_id = auth()->id();
+
+
+        if ( SupportTicket::where('id', $id)->where('user_id', $user_id)->doesntExist() ) {
+
+            return ['message' => 'invalid record'];
+
+        }
+
+        $select = ['support_tickets.id',
+                   'statuses.status_name',
+                   'support_tickets.created_at',
+                   'support_topics.id as support_topic_id',
+                   'support_topics.support_topic_name as topic',
+                   'support_tickets.ticket_text as issue'];
+
+        $supportTicket = SupportTicket::select($select)
+                            ->leftJoin('support_topics', 'support_tickets.support_topic_id', '=', 'support_topics.id')
+                            ->leftJoin('statuses', 'support_tickets.status_id', '=', 'statuses.id')
+                            ->where('support_tickets.user_id', $user_id)
+                            ->where('support_tickets.id', $id)
+                            ->orderBy('support_tickets.created_at', 'desc')
+                            ->with('ticketResponses')
+                            ->first();
+
+        return $supportTicket;
+
+    }
+
+}

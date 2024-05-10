@@ -1,0 +1,73 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Dev\Seeders;
+
+use App\Models\Role;
+use DB;
+
+class RolesSeederController
+{
+
+    public function run()
+    {
+
+        DB::table('roles')->truncate();
+
+        // 1
+
+        Role::create([
+
+            'role_name' => 'base',
+
+        ]);
+
+        // 2
+
+        Role::create([
+
+            'role_name' => 'admin',
+
+        ]);
+
+        // 3
+
+        Role::create([
+
+            'role_name' => 'support',
+
+        ]);
+
+        // 4
+
+        Role::create([
+
+            'role_name' => 'shipping',
+
+        ]);
+
+        // 4
+
+        Role::create([
+
+            'role_name' => 'accounting',
+
+        ]);
+
+        // 5
+
+        Role::create([
+
+            'role_name' => 'purchasing',
+
+        ]); 
+
+        Role::create([
+
+            'role_name' => 'programmer',
+
+        ]); 
+
+    }
+
+
+}

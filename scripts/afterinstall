@@ -1,0 +1,87 @@
+#!/bin/bash -x
+# script to be run after deployment install
+
+#### variables
+
+base_path="/srv/www/${DEPLOYMENT_GROUP_NAME}"
+release_path="${base_path}/releases/"
+release=$(TZ="America/Los_Angeles" date +"%Y%m%d%H%M%S")
+current_release_path="${release_path}${release}"
+
+
+#### functions
+
+get_vhost()
+{
+	sudo aws s3 cp "s3://serrfdeploy/${APPLICATION_NAME}/${APPLICATION_NAME}.conf" /etc/apache2/vhosts.d/ || exit $?
+}
+
+get_env()
+{
+	aws s3 cp "s3://serrfdeploy/${APPLICATION_NAME}/.env" "${base_path}/"
+}
+
+chown_deployment()
+{
+	sudo chown -R ec2-user:ec2-user "${base_path}/deploy" || $?
+}
+
+move_deploy_releases()
+{
+	mv "${base_path}/deploy" "${current_release_path}"
+}
+
+symlink_storage()
+{
+	rm -rf "${current_release_path}/storage" || exit $?
+
+	ln -s "${base_path}/storage/" "${current_release_path}/storage" || $?
+}
+
+symlink_env()
+{
+	ln -s "${base_path}/.env" "${current_release_path}/.env" || $?
+}
+
+chmod_bootstrap()
+{
+	chmod -R 0775 "${current_release_path}/bootstrap" || $?
+	chmod -R 0777 "${current_release_path}/bootstrap/cache" || $?
+}
+
+install_composer_dependencies()
+{
+	composer update -d "${current_release_path}/" || $?
+}
+
+change_current_link()
+{
+	
+	rm -f "${base_path}/current";ln -s "${current_release_path}" "${base_path}/current" || $?
+}
+
+create_htdocs()
+{
+	if [ ! -L "${base_path}/htdocs" ]
+	then
+		ln -s "${base_path}/current/public/" "${base_path}/htdocs" || $?
+	fi
+}
+
+remove_old_releases()
+{
+	find "${base_path}/releases" -maxdepth 1 -type d -not -wholename "${current_release_path}" -not -wholename "${base_path}/releases" -exec rm -rf {} \; > "${base_path}/debug.txt"
+}
+
+
+#### main
+get_vhost
+get_env
+chown_deployment
+move_deploy_releases
+symlink_storage
+symlink_env
+chmod_bootstrap
+install_composer_dependencies
+change_current_link
+create_htdocs

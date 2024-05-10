@@ -1,0 +1,232 @@
+<?php
+
+namespace App\Http\Controllers\Admin\UserRolesManagement;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\UserRole;
+use App\Models\Role;
+use App\Models\User;
+
+class UserRolesManagementController extends Controller
+{
+
+    public function listRoles()
+    {
+
+        // model method returns list of roles
+
+        return Role::listRoles();
+        
+    }
+
+    public function listUsersByRole($id)
+    {
+
+        // model method returns role name and list of users with that role
+
+        list($role_name, $users) = Role::listUsersByRole($id);
+
+        return ['role_name' => $role_name, 'users' => $users];
+        
+    }
+
+    public function listUsersWithRoles()
+    {
+
+        // list all users with their roles
+
+        $users = Role::getBaseRoleUserSelects();
+
+        foreach ($users as $user) {
+
+            $userRoles = UserRole::where('user_id', $user['id'])->get();
+        
+            $results[] = [
+
+                'user_id' => $user['id'],
+                'user_name' => $user['name'],
+                'roles' => $userRoles->map(function ($role) {
+
+                    return [
+                        'role_id' => $role->role_id,
+
+                        // role is an instance of UserRole
+                        // UserRole has a relationship with Role
+
+                        'role_name' => $role->role->role_name, 
+                    ];
+
+                })->all(),
+            ];
+
+        }
+
+        return $results;
+
+    }
+
+    public function addBaseRoleToUser(Request $request)
+    {
+
+        // add user to base role using email of the user
+
+        // users must have 'base' role to be able to have other roles
+
+        // find user from email input
+
+        $request->validate([
+
+            'email' =>'email|required'
+        ]);
+
+        $email = $request->get('email');
+
+        $user_id = User::findUserIdByEmail($email);
+
+        if ( ! $user_id > 0 ) {
+
+            return ['message' => 'User not found'];
+
+        }
+
+        $role_id = Role::getRoleId('base');
+
+        if ( UserRole::where('user_id', $user_id)->where('role_id', $role_id)->exists() ) {
+
+            return ['message' => 'Base role already exists for this user'];
+
+        }
+
+        $userRole = UserRole::create([
+
+            'user_id' => $user_id,
+            'role_id' => $role_id
+
+        ]);
+
+        return $userRole;
+
+
+    }
+
+    public function getRoleSelects()
+    {
+
+        // list of possible roles
+
+        return Role::getSelects();
+
+    }
+
+    public function getUserSelects()
+    {
+
+        // users must have a role of 'base' to appear in this list
+
+        return Role::getBaseRoleUserSelects();
+
+    }
+
+    public function getUserAndRoleSelects()
+    {
+
+        // users must have a role of 'base' to appear in this list
+
+        $roles = Role::getSelects();
+
+        $users = Role::getBaseRoleUserSelects();
+
+        return ['roles' => $roles, 'users' => $users];
+
+    }
+
+    public function userRoles(Request $request)
+    {
+
+        // get the user's roles from user id
+
+        $request->validate([
+
+            'user_id' => 'integer|required'
+        ]);
+
+
+        $user_id = $request->get('user_id');
+
+        $user = User::find($user_id);
+
+        $user_id = $user->id;
+
+        $user_name = $user->name;
+
+        $select = ['roles.id as role_id','roles.role_name'];
+
+        $roles = UserRole::select($select)
+                           ->leftJoin('roles', 'user_roles.role_id', '=', 'roles.id')
+                           ->where('user_id', $user_id)
+                           ->orderBy('roles.role_name', 'asc')
+                           ->get();
+
+        return ['user_id' => $user_id, 'user_name' => $user_name, 'roles' => $roles];
+
+    }
+
+    public function addRoleToUser(Request $request)
+    {
+
+        // assign a role to a user
+
+        $request->validate([
+
+            'user_id' => 'integer|required',
+            'role_id' => 'integer|required'
+        ]);
+
+        $user_id = $request->get('user_id');
+        $role_id = $request->get('role_id');
+
+        if ( UserRole::where('user_id', $user_id)->where('role_id', $role_id)->exists() ) {
+
+            return ['message' => 'role has already been assigned to user'];
+        }
+
+        $userRole = UserRole::create([
+
+            'user_id' => $user_id,
+            'role_id' => $role_id
+
+        ]);
+
+        return $userRole;
+
+    }
+
+    public function removeRoleFromUser(Request $request)
+    {
+
+        // remove a role from user 
+
+        $request->validate([
+
+            'user_id' => 'integer|required',
+            'role_id' => 'integer|required'
+        ]);
+
+        $user_id = $request->get('user_id');
+        $role_id = $request->get('role_id');
+
+        if ( UserRole::where('user_id', $user_id)->where('role_id', $role_id)->doesntExist() ) {
+
+            return ['message' => 'Role not found for this user.'];
+        }
+
+        $userRole = UserRole::where('user_id', $user_id)->where('role_id', $role_id)->first();
+        
+        $userRole->delete();
+
+        return ['Role removed from user.'];
+
+    }
+    
+}

@@ -1,0 +1,64 @@
+#!/bin/bash -x
+# script to be run before deployment install
+
+#### variables
+
+site=""
+base_path=""
+release_path=""
+
+
+
+release=$(TZ="America/Los_Angeles" date +"%Y%m%d%H%M%S")
+
+
+#### functions
+
+set_site()
+{
+	if [ -z "$DEPLOYMENT_GROUP_NAME" ]
+	then
+		site="nogroup"
+	else
+		site=$DEPLOYMENT_GROUP_NAME
+	fi
+}
+
+set_base_path()
+{
+	base_path="/srv/www/$site"
+}
+
+set_release_path()
+{
+	release_path="${base_path}/releases/"
+}
+
+create_release_directory()
+{
+	sudo mkdir -p $release_path || exit $?
+}
+
+chown_releases()
+{
+	sudo chown -R ec2-user:ec2-user $base_path || $?
+}
+
+create_storage()
+{
+	mkdir -p "${base_path}/storage/app/public" || exit $?
+	mkdir -p "${base_path}/storage/framework/cache" || exit $?
+	mkdir -p "${base_path}/storage/framework/sessions" || exit $?
+	mkdir -p "${base_path}/storage/framework/views" || exit $?
+	mkdir -p "${base_path}/storage/logs" || exit $?
+	sudo chmod -R 0777 "${base_path}/storage" || exit $?
+}
+
+#### main
+
+set_site $1
+set_base_path
+set_release_path
+create_release_directory
+chown_releases
+create_storage

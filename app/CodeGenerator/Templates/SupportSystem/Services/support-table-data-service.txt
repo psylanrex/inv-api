@@ -1,0 +1,139 @@
+<?php
+
+namespace App\Services\Support;
+
+use App\Models\Status;
+use App\Models\SupportTicket;
+
+class SupportTableDataService
+{
+
+    public function getTickets($request)
+    {
+
+        // status the ticket from form
+
+        $status = $request->get('status');
+
+        // columns for the query
+
+        $select = [
+
+            'support_tickets.id',
+            'support_topics.support_topic_name',
+            'statuses.status_name',
+            'users.name',
+            'support_tickets.ticket_text'
+
+        ];
+
+        // query according to desired status, 1 = all, 2 = closed, 3 = open
+
+        switch ( $status ) {
+
+            case 1 :
+
+                return $this->allTickets($select);
+
+            case 2 :
+
+                return $this->closedTickets($select);
+
+            case 3 :
+
+                return $this->openTickets($select);
+
+            default :
+
+                return $this->allTickets($select);
+        }
+
+    }
+
+    public function openTickets($select)
+    {
+
+        // get status id of open
+
+        $open = Status::getStatusId('open');
+
+        // get tickets
+
+        $tickets = SupportTicket::select($select)
+                                ->leftJoin('support_topics', 'support_tickets.support_topic_id', '=', 'support_topics.id')
+                                ->leftJoin('users', 'support_tickets.user_id', '=', 'users.id')
+                                ->leftJoin('statuses', 'support_tickets.status_id', '=', 'statuses.id')
+                                ->where('support_tickets.status_id', $open)
+                                ->orderBy('support_tickets.id', 'desc')
+                                ->paginate(10);
+
+        $tickets->map(function($ticket) {
+
+            $ticket->ticket_text = substr($ticket->ticket_text, 0, 24);
+
+            $ticket->details_endpoint = "support-ticket/{$ticket->id}";
+                                        
+            return $ticket;
+                    
+        });
+                    
+        return $tickets;
+
+    }
+
+    public function closedTickets($select)
+    {
+
+        // get the status id
+
+        $closed = Status::getStatusId('closed');
+
+        // get the tickets
+
+        $tickets = SupportTicket::select($select)
+                                ->leftJoin('support_topics', 'support_tickets.support_topic_id', '=', 'support_topics.id')
+                                ->leftJoin('users', 'support_tickets.user_id', '=', 'users.id')
+                                ->leftJoin('statuses', 'support_tickets.status_id', '=', 'statuses.id')
+                                ->where('support_tickets.status_id', $closed)
+                                ->orderBy('support_tickets.id', 'asc')
+                                ->paginate(10);
+
+        $tickets->map(function($ticket) {
+
+            $ticket->ticket_text = substr($ticket->ticket_text, 0, 24);
+
+            $ticket->details_endpoint = "support-ticket/{$ticket->id}";
+                                        
+            return $ticket;
+                    
+        });
+                    
+        return $tickets;
+
+    }
+
+    public function allTickets($select)
+    {
+
+        $tickets = SupportTicket::select($select)
+                                ->leftJoin('support_topics', 'support_tickets.support_topic_id', '=', 'support_topics.id')
+                                ->leftJoin('users', 'support_tickets.user_id', '=', 'users.id')
+                                ->leftJoin('statuses', 'support_tickets.status_id', '=', 'statuses.id')
+                                ->orderBy('support_tickets.id', 'desc')
+                                ->paginate(10);
+
+        $tickets->map(function($ticket) {
+
+            $ticket->ticket_text = substr($ticket->ticket_text, 0, 24);
+
+            $ticket->details_endpoint = "support-ticket/{$ticket->id}";
+                                        
+            return $ticket;
+                    
+        });
+                    
+        return $tickets;
+
+    }
+
+}

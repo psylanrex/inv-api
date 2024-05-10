@@ -1,0 +1,23 @@
+#!/bin/bash -x
+# script to be run after deployment install
+
+#### variables
+
+base_path="/srv/www/${DEPLOYMENT_GROUP_NAME}"
+deploy_path=$(readlink "${base_path}/deploy")
+
+
+#### functions
+restart_phpfpm()
+{
+	sudo service php-fpm restart || $?
+}
+
+restart_apache()
+{
+	sudo service httpd restart || $?
+}
+
+#### main
+restart_phpfpm
+restart_apache

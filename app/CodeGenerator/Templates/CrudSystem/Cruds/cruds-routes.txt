@@ -1,0 +1,15 @@
+    // Crud routes begin
+
+    Route::get('/cruds', [CrudsController::class, 'index']);
+    Route::get('/crud/{id}',[CrudsController::class, 'show']);
+    Route::get('/crud/edit/{id}',[CrudsController::class, 'editFormConfig']);
+    Route::get('/crud-add',[CrudsController::class, 'addFormConfig']);
+    Route::post('/cruds',[CrudsController::class, 'store']);
+    Route::post('/crud/{id}',[CrudsController::class, 'update']);
+    Route::delete('/crud/{id}',[CrudsController::class, 'destroy']);
+    Route::get('/cruds/search/{keyword}',[CrudsController::class, 'search']);
+
+    Route::get('/get-cruds-list',[CrudsController::class, 'getCrudsList']);
+
+    // Crud routes end
+

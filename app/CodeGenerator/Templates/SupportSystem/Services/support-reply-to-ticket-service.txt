@@ -1,0 +1,73 @@
+<?php
+
+namespace App\Services\Support;
+
+use App\Models\SupportTicket;
+use App\Models\TicketResponse;
+use App\Models\Status;
+use DB;
+
+class SupportReplyToTicketService
+{
+
+    public static function replyToTicket($request)
+    {
+
+        $request->validate([
+
+            'support_topic_id' => 'integer|required',
+            'support_ticket_id' => 'integer|required',
+            'user_id' => 'integer|required',
+            'response_text' => 'string|required'
+
+
+        ]);
+
+        // Start transaction!
+        
+        DB::beginTransaction();
+
+        try{
+
+            // update original ticket as closed if needed
+
+            if ( $request->get('status') == 'close' ) {
+
+                $support_ticket_id = $request->get('support_ticket_id');
+    
+                $originalTicket = SupportTicket::find($support_ticket_id);
+    
+                $originalTicket->status_id = Status::getStatusId('closed');
+    
+                $originalTicket->save();
+    
+            }
+
+            // create response
+    
+            $response = TicketResponse::create([
+    
+                'support_topic_id' => $request->support_topic_id,
+                'support_ticket_id' => $request->support_ticket_id,
+                'user_id' => $request->user_id,
+                'is_from_customer' => 0,
+                'response_text' => $request->response_text,
+                'is_read' => 0
+    
+            ]); 
+            
+            DB::commit();
+
+        } catch(\Exception $e){
+
+                DB::rollback();
+
+                throw $e->getMessage();
+                
+        }   
+
+        return $response;
+
+    }
+
+}

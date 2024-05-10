@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Services\Support;
+
+use App\Models\Status;
+use App\Models\SupportTicket;
+
+class CloseTicketService
+{
+
+    public static function closeTicket($request)
+    {
+
+        $support_ticket_id = $request->get('id');
+    
+        $originalTicket = SupportTicket::find($support_ticket_id);
+    
+        $originalTicket->status_id = Status::getStatusId('closed');
+    
+        $originalTicket->save();
+
+        return ['message' => 'You have closed ticket# ' . $originalTicket->id];
+
+
+    }
+
+}

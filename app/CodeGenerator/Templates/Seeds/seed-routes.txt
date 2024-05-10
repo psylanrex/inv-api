@@ -1,0 +1,15 @@
+ /*
+|--------------------------------------------------------------------------
+| Seeder ROUTES
+|--------------------------------------------------------------------------
+|
+| Routes for seeders.
+|
+*/
+
+    Route::get('/make-seeds', [MakeSeedsController::class, 'index']);
+    Route::get('/make-seed', [MakeSeedsController::class, 'makeSeed']);
+    Route::get('/drop-seed', [MakeSeedsController::class, 'dropSeed']);
+    Route::get('/get-seed-form-config', [MakeSeedsController::class, 'getSeedFormConfig']);
+
+    
