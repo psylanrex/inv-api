@@ -17,8 +17,6 @@ class ForgotPasswordEmail extends Mailable
 
     /**
      * Create a new message instance.
-     *
-     * @return void
      */
     public function __construct($token)
     {
@@ -31,8 +29,11 @@ class ForgotPasswordEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Forgot Password Email',
+
+            subject: 'Invitory Password Reset Request',
+
         );
+
     }
 
     /**
@@ -40,15 +41,18 @@ class ForgotPasswordEmail extends Mailable
      */
     public function content(): Content
     {
-
-        $url = 'localhost/api/get-password-reset-form/' . $this->token;
-
         return new Content(
-            markdown: 'emails.verification.forgot-password-email',
+            
+            markdown: 'mail.forgot-password.forgot-password-request',
+
             with: [
-                'url' => $url
-            ]
+
+                'url' => 'https://invitory.com/get-password-reset-form/' . $this->token
+       
+            ],
+   
         );
+
     }
 
     /**

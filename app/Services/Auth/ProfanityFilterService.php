@@ -6,6 +6,7 @@ class ProfanityFilterService
 {
 
     private static $patterns = [
+
         '/\W*n+\W*[i1!]+\W*g{2,}/i', # N-word
         '/\W*f+\W*[u]+\W*c+\W*k/i', # F-word
         '/[s5$]\W*\W*h+\W*[i1!]+\W*[t7]/i', # Shit
@@ -15,6 +16,7 @@ class ProfanityFilterService
         '/\W*c+\W*u+\W*n+\W*[t7]/i', # C-word
         '/\W*p+\W*u+\W*[s5$]{2,}/i', # P-word
         '/\W*c+\W*[o0]+\W*c+\W*k/i', # Co-word
+
     ];
 
 
@@ -30,12 +32,15 @@ class ProfanityFilterService
         foreach (self::$patterns AS $pattern) {
 
             if (preg_match($pattern, strtolower($string))) {
-                return true;
+
+                return TRUE;
+
             }
 
         }
 
-        return false;
-        
+        return FALSE;
+
     }
+    
 }

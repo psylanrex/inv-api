@@ -8,19 +8,7 @@ use App\Services\Auth\ProfanityFilterService;
 
 class ProfanityNotAllowed implements ValidationRule
 {
-
-    private $profantiy;
-
-    /**
-     * Create a new rule instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->profanity = new ProfanityFilterService;
-    }
-
+  
     /**
      * Run the validation rule.
      *
@@ -28,10 +16,12 @@ class ProfanityNotAllowed implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if ( $this->profanity->matches($value) ) {
+        if ( (new ProfanityFilterService)->matches($value) ) {
 
-            $fail('The name is already in use.');
+            $fail("Name has been taken. Please try another.");
 
         }
+
     }
+    
 }

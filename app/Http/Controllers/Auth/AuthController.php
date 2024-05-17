@@ -5,20 +5,18 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\RegistrationRequest;
+use App\Http\Requests\ImpersonateRequest;
 use App\Services\Auth\RegistrationService;
 use App\Services\Auth\LoginService;
-use DB;
-
+use App\Services\Auth\ImpersonateService;
+use App\Models\PersonalAccessToken;
 
 class AuthController extends Controller
 {
-
     public function register(RegistrationRequest $request, RegistrationService $register)
     {
 
-        $fields = $request->all();
-
-        return $register->handleRegistration($fields);   
+        return $register->handleRegistration($request->all());
 
     }
 
@@ -27,7 +25,7 @@ class AuthController extends Controller
 
         $fields = $request->validate([
             
-            'email' => 'required|string',
+            'username' => 'required|string',
             'password' => 'required|string'
 
         ]);
@@ -39,10 +37,16 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
 
-        auth()->user()->tokens()->delete();
+        $user_id = auth()->Id();
+
+        // delete all tokens for user       
+
+        PersonalAccessToken::where('tokenable_id', $user_id)->delete();
 
         return [
+
             'message' => 'Logged Out'
+            
         ];
 
     }
@@ -59,9 +63,31 @@ class AuthController extends Controller
         $token = $request->get('token');
 
 
-        return  DB::table('personal_access_tokens')->where('token', $token)->exists();
+        return  PersonalAccessToken::where('token', $token)->exists();
 
     }
 
-}
+    public function permissionDenied()
+    {
 
+        return ['message' => 'Permission denied'];
+
+    }
+
+    public function impersonateVendor($id)
+    {
+
+        // takes in vendor id to foward to form
+
+        return ['vendor_id' => $id];
+
+    }
+
+    public function impersonate(ImpersonateRequest $request, ImpersonateService $service)
+    {
+
+        return $service->handleImpersonate($request);
+
+    }
+      
+}

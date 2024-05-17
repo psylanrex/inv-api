@@ -2,63 +2,35 @@
 
 namespace App\Services\Auth;
 
-use Illuminate\Https\Response;
-use App\Models\User;
-use App\Models\UserVerification;
-use App\Models\Status;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\VerifyEmail;
-
+use App\Services\Auth\RegistrationTransactionService;
 
 class RegistrationService
 {
 
-    public function handleRegistration($fields)
+    public function handleRegistration($request)
     {
 
-        $status_id = Status::getStatusId('pending_email_verification');
+        $user = (new RegistrationTransactionService)->createUser($request);
 
-        // create the user
+        $fields = [
 
-        $user = User::create([
+            'username' => $user->username,
+            'password' => $user->password
 
-            'name' => $fields['name'],
-            'email' => $fields['email'],
-            'password' => bcrypt($fields['password']),
-            'status_id' => $status_id
-
-        ]);
-
-
-        //  create verification token and send confirm email
-
-        $token = Str::random(64);
-
-        $user_id = $user->id;
-
-        UserVerification::create([
-
-                    'user_id' => $user_id, 
-                    'token' => $token
-        ]);
-
-
-        Mail::to($user)->send(new VerifyEmail($token));
-
-        // format response data
-
-        $responseData = [
-            'message' => 'please confirm your email',
-            'user' => $user
         ];
 
-        // feedback to the browser
+        // create new access token
 
-        return response($responseData, 201);
+        $token = $user->createToken('invitorytoken')->plainTextToken; 
+
+        return response([
+
+            'user' => $user,
+            'token' => $token,
+            'message' => 'User created'
+
+        ], 201);
 
     }
-
-    
-
+       
 }
