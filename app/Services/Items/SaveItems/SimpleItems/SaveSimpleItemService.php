@@ -20,7 +20,7 @@ class SaveSimpleItemService
 
         // send product to save images service
 
-       (new SaveImagesService)->saveImages($request, $product);
+       (new SaveImagesService())->saveImages($request, $product);
 
         return [
 

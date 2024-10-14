@@ -12,8 +12,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 
    // Item Create Forms
    
-    Route::get('/items/get-categories', [ItemsCreateFormController::class, 'getCategories']);
-    Route::get('/items/get-form-by-category/{id}', [ItemsCreateFormController::class, 'getFormByCategory']);
+    Route::get('/items/get-form-fields', [ItemsCreateFormController::class, 'getFormFields']);
+    
     Route::get('/items/gemstone-dependent-fields/{id}', [ItemsCreateFormController::class, 'getGemstoneDependentFields']);
 
     // Item Edit Forms

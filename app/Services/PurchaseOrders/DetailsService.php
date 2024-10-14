@@ -10,7 +10,7 @@ class DetailsService
 {
     
     public function details($purchase_order_id)
-    {
+    {      
         
         $purchase_order = PurchaseOrder::find($purchase_order_id);
 
@@ -24,7 +24,9 @@ class DetailsService
             'purchase_order' => $purchase_order,
             'item_count' => $purchase_order_totals->quantity,
             'grand_total' => $purchase_order_totals->grand_total,
-            'is_staged' => false
+            'is_staged' => false,
+            'category_name' => $purchase_order->category->name,
+            'purchase_order_status_name' => $purchase_order->purchaseOrderStatus->name
 
         ];
 

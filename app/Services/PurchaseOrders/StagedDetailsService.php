@@ -17,11 +17,18 @@ class StagedDetailsService
 
         $stagedValues = (new StagedPoByStatusAndIdQuery)
         
-            ->getData(PurchaseOrderStatus::PENDING_VENDOR , $purchase_order_id);
+            ->getData(PurchaseOrderStatus::PENDING_VENDOR, $purchase_order_id);
+
+        if ( ! $stagedValues) {
+
+            return ['error' => 'No staged purchase order found with pending vendor status.', 'code' => 404];
+
+        }
 
         $results->items = (new StagedDetailsQuery)->getData($purchase_order_id);
 
-        $results->purchase_order = StagedPurchaseOrder::find($purchase_order_id);
+        $results->purchase_order = StagedPurchaseOrder::with('category', 'purchaseOrderStatus')
+            ->find($purchase_order_id);
 
         $results->item_count = $stagedValues->quantity;
 

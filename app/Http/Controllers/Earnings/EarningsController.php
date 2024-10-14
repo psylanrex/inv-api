@@ -17,11 +17,7 @@ class EarningsController extends Controller
 
         $request->merge(['is_paid' => FALSE]);
 
-       // $vendor_id = Auth::user()->vendor_id;
-
-        // test with a hard coded vendor_id
-
-        $vendor_id = 7;
+       $vendor_id = Auth::user()->vendor_id;
 
         return $earnings->getData($request, $vendor_id);
        
@@ -30,11 +26,7 @@ class EarningsController extends Controller
     public function paid(EarningsRequest $request, EarningsQuery $earnings)
     {
 
-        // $vendor_id = Auth::user()->vendor_id;
-
-        // test with a hard coded vendor_id
-
-        $vendor_id = 7;
+        $vendor_id = Auth::user()->vendor_id;
 
         // add is_paid to the request
 

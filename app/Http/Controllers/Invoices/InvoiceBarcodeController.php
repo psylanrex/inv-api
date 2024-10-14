@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\Invoices;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Services\Barcodes\BarcodeGeneratorService;
 
 class InvoiceBarcodeController extends Controller
 {
-    public function barcode(Request $request)
+
+    public function barcode($code)
     {
 
-        return 'here is the barcode';
+        $bc = new BarcodeGeneratorService();
+        $bc->init('png');
+        $bc->build($code);
         
     }
+    
 }

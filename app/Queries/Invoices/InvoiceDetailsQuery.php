@@ -4,6 +4,7 @@ namespace App\Queries\Invoices;
 
 use App\Models\Invoice;
 use App\Models\PurchaseOrderLineItem;
+use App\Models\ShipMethod;
 use App\Models\VendorReturnControl;
 
 class InvoiceDetailsQuery
@@ -95,6 +96,8 @@ class InvoiceDetailsQuery
             ->groupBy('VendorReturn.invoice_id')
 
             ->get();
+
+        $results->ship_methods = ShipMethod::all();
             
         return $results;
 

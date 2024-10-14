@@ -34,7 +34,7 @@ class HasPurchaseOrder
         }
         if ( ! $has_po ) {
 
-            return redirect('/api/no-purchase-order-found');
+            return response()->json(['code' => 404, 'message' => 'Purchase Order not found.'], 404);
 
         }
 

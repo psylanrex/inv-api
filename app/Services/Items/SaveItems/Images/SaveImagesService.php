@@ -36,10 +36,7 @@ class SaveImagesService
 
                 // we need to store to Amazon
 
-                $request->file($type)->storeAs(
-
-                    $category_and_type_id, $filename);
-        
+                // $request->file($type)->storeAs($category_and_type_id, $filename);
             }
 
         }

@@ -71,10 +71,10 @@ class InvoicesController extends Controller
 
     }
 
-    public function cancelInvoice($invoice_id)
+    public function cancelInvoice($id)
     {
 
-        return (new CancelInvoiceService())->cancelInvoice($invoice_id);
+        return (new CancelInvoiceService())->cancelInvoice($id);
 
     }
 

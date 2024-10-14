@@ -31,7 +31,7 @@ class HasInvoice
 
         if ( ! $own_invoice) {
 
-            return redirect('/invoices/no-invoice-found');
+            return response()->json(['code' => 404, 'message' => 'Invoice not found.'], 404);
 
         }
 

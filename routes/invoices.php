@@ -5,7 +5,7 @@ use App\Http\Controllers\Invoices\InvoicesController;
 use App\Http\Controllers\Invoices\InvoiceBarcodeController;
 
 
-Route::group(['middleware' => ['auth:sanctum', 'hasInvoice']], function() {
+Route::group(['middleware' => ['auth:sanctum']], function() {
 
     Route::get('/invoices/pending', [InvoicesController::class, 'pending']);
     Route::get('/invoices/shipped', [InvoicesController::class, 'shipped']);
@@ -14,12 +14,19 @@ Route::group(['middleware' => ['auth:sanctum', 'hasInvoice']], function() {
         
     Route::get('invoice/barcode/{code}', [InvoiceBarcodeController::class, 'barcdoe']);
 
+    Route::post('/invoices/cancel/{id}', [InvoicesController::class, 'cancelInvoice']);
+
+    Route::get('/invoices/no-invoice-found', [InvoicesController::class, 'noInvoiceFound']);
+  
+});
+
+
+Route::group(['middleware' => ['auth:sanctum', 'hasInvoice']], function() {
+
     Route::get('/invoices/details/{invoice_id}', [InvoicesController::class, 'details']);
     Route::get('/invoices/finish/{invoice_id}', [InvoicesController::class, 'finish']);
     Route::post('/invoices/finish/{invoice_id}', [InvoicesController::class, 'finalizeInvoice']);
     Route::get('/invoices/print/{invoice_id}', [InvoicesController::class, 'printInvoice']);
-    Route::post('/invoices/cancel', [InvoicesController::class, 'cancelInvoice']);
-
-    Route::get('/invoices/no-invoice-found', [InvoicesController::class, 'noInvoiceFound']);
+ 
   
 });
